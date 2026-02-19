@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Binary Search Tree Interactive Game</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; text-align: center; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .controls { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: inline-block; margin-bottom: 20px; }
+        input { padding: 10px; width: 80px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        button { padding: 10px 15px; cursor: pointer; border: none; border-radius: 5px; background-color: #28a745; color: white; font-weight: bold; }
+        button.reset { background-color: #dc3545; }
+        .display-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        canvas { background: white; border: 1px solid #ccc; border-radius: 10px; }
+        .results { text-align: left; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-width: 300px; }
+        .method-item { margin-bottom: 15px; padding: 10px; border-left: 5px solid #007bff; background: #e9f2ff; }
+        b { color: #d63384; }
+    </style>
+</head>
+<body>
+
+    <h1>BST Traversal Explorer</h1>
+    
+    <div class="controls">
+        <input type="number" id="nodeValue" placeholder="ระบุเลข">
+        <button onclick="addNode()">เพิ่ม Node</button>
+        <button class="reset" onclick="resetTree()">ล้างต้นไม้</button>
+    </div>
+
+    <div class="display-area">
+        <canvas id="treeCanvas" width="600" height="400"></canvas>
+        
+        <div class="results">
+            <h3>วิธีการเดินโหนด 3 ประการ:</h3>
+            <div class="method-item">
+                <strong>1. Preorder (Root-Left-Right):</strong><br>
+                <span id="preorderRes">-</span>
+            </div>
+            <div class="method-item">
+                <strong>2. Inorder (Left-Root-Right):</strong><br>
+                <span id="inorderRes">-</span>
+            </div>
+            <div class="method-item">
+                <strong>3. Postorder (Left-Right-Root):</strong><br>
+                <span id="postorderRes">-</span>
+            </div>
+        </div>
+    </div>
+
+
+
+<script>
+    class Node {
+        constructor(val) {
+            this.val = val;
+            this.left = null;
+            this.right = null;
+        }
+    }
+
+    let root = null;
+
+    function addNode() {
+        const val = parseInt(document.getElementById('nodeValue').value);
+        if (isNaN(val)) return;
+        
+        root = insert(root, val);
+        document.getElementById('nodeValue').value = '';
+        updateUI();
+    }
+
+    function insert(node, val) {
+        if (!node) return new Node(val);
+        if (val < node.val) node.left = insert(node.left, val);
+        else if (val > node.val) node.right = insert(node.right, val);
+        return node;
+    }
+
+    function resetTree() {
+        root = null;
+        updateUI();
+    }
+
+    // Traversal Logic
+    function getPreorder(node, res = []) {
+        if (!node) return res;
+        res.push(node.val);
+        getPreorder(node.left, res);
+        getPreorder(node.right, res);
+        return res;
+    }
+
+    function getInorder(node, res = []) {
+        if (!node) return res;
+        getInorder(node.left, res);
+        res.push(node.val);
+        getInorder(node.right, res);
+        return res;
+    }
+
+    function getPostorder(node, res = []) {
+        if (!node) return res;
+        getPostorder(node.left, res);
+        getPostorder(node.right, res);
+        res.push(node.val);
+        return res;
+    }
+
+    // UI & Drawing Logic
+    function updateUI() {
+        const canvas = document.getElementById('treeCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (root) drawNode(ctx, root, canvas.width / 2, 40, canvas.width / 4);
+        
+        document.getElementById('preorderRes').innerHTML = `<b>${getPreorder(root).join(' → ')}</b>`;
+        document.getElementById('inorderRes').innerHTML = `<b>${getInorder(root).join(' → ')}</b>`;
+        document.getElementById('postorderRes').innerHTML = `<b>${getPostorder(root).join(' → ')}</b>`;
+    }
+
+    function drawNode(ctx, node, x, y, offset) {
+        if (node.left) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - offset, y + 60);
+            ctx.stroke();
+            drawNode(ctx, node.left, x - offset, y + 60, offset / 1.8);
+        }
+        if (node.right) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + offset, y + 60);
+            ctx.stroke();
+            drawNode(ctx, node.right, x + offset, y + 60, offset / 1.8);
+        }
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fillStyle = "#007bff";
+        ctx.fill();
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(node.val, x, y + 5);
+    }
+</script>
+</body>
+</html>
