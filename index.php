@@ -1,3 +1,18 @@
+<?php
+$host = '202.29.70.18';    
+$user = 'trees_db';        // ข้อมูลจากหน้าจอของคุณ
+$db   = 'trees_db';        // ข้อมูลจากหน้าจอของคุณ
+$port = '3306';            // เลข External Port จากรูป
+$pass = 'รหัสผ่านจริง';    // อย่าลืมกดรูป "ดวงตา" ในหน้าจอ Dokploy เพื่อดูรหัสจริงมาใส่ครับ
+
+$conn = new mysqli($host, $user, $pass, $db, $port);
+
+if ($conn->connect_error) {
+    die("เชื่อมต่อไม่สำเร็จ: " . $conn->connect_error);
+}
+echo "เชื่อมต่อฐานข้อมูล MariaDB สำเร็จแล้ว!";
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
