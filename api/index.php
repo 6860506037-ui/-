@@ -1,55 +1,40 @@
 <?php
 // api/index.php
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *'); // อนุญาตให้หน้าเว็บเรียกใช้ได้
+
 $host = '202.29.70.18';    
 $user = 'trees_db';        
 $db   = 'trees_db';        
-$port = '80';            
-$pass = '1111'; // อย่าลืมใส่รหัสผ่านจริงจากหน้า Dokploy
+$port = 80;                // พอร์ต 80 ตามที่อาจารย์สั่ง
+$pass = '1111';            // รหัสผ่านที่คุณตั้งไว้
 
+// สร้างการเชื่อมต่อ
 $conn = new mysqli($host, $user, $pass, $db, $port);
 
+// ตรวจสอบการเชื่อมต่อ
 if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed"]));
+    die(json_encode(["error" => "เชื่อมต่อฐานข้อมูลไม่สำเร็จ: " . $conn->connect_error]));
 }
 
-// รับค่าเพื่อบันทึกลงฐานข้อมูล
+// 1. ส่วนบันทึกข้อมูล (เมื่อกดปุ่มเพิ่ม)
 if (isset($_GET['add_node'])) {
     $val = intval($_GET['add_node']);
     $stmt = $conn->prepare("INSERT INTO bst_nodes (value) VALUES (?)");
     $stmt->bind_param("i", $val);
-        // ลบส่วน header และ exit ของเก่าออก แล้วใส่ส่วนนี้แทนครับ
+    $stmt->execute();
     $stmt->close();
 }
 
-// 2. ดึงข้อมูลทั้งหมดมาส่งให้หน้าเว็บวาดต้นไม้ (ห้ามมี exit ขวางข้างบน)
+// 2. ส่วนดึงข้อมูลมาวาดต้นไม้ (ส่งกลับเป็น JSON)
 $result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
 $nodes = [];
-
-while($row = $result->fetch_assoc()) {
-    $nodes[] = (int)$row['value'];
+if ($result) {
+    while($row = $result->fetch_assoc()) {
+        $nodes[] = (int)$row['value'];
+    }
 }
 
-echo json_encode($nodes); 
-$conn->close();
-?>
-// ... ต่อจากบรรทัดที่ 22 (exit();) ...
-
-// 2. ส่วนของการดึงข้อมูลทั้งหมดมาวาดต้นไม้
-$result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
-$nodes = [];
-
-while($row = $result->fetch_assoc()) {
-    $nodes[] = (int)$row['value'];
-}
-
-echo json_encode($nodes); // ส่งรายการตัวเลขกลับไปให้ index.html วาดรูป
-$conn->close();
-// ดึงข้อมูลทั้งหมดส่งกลับไปวาดต้นไม้
-$result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
-$nodes = [];
-while($row = $result->fetch_assoc()) {
-    $nodes[] = (int)$row['value'];
-}
 echo json_encode($nodes);
+$conn->close();
 ?>
