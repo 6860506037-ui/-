@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 $host = '202.29.70.18';    
 $user = 'trees_db';        
 $db   = 'trees_db';        
-$port = '3306';            
+$port = '80';            
 $pass = '1111'; // อย่าลืมใส่รหัสผ่านจริงจากหน้า Dokploy
 
 $conn = new mysqli($host, $user, $pass, $db, $port);
