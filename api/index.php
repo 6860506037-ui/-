@@ -22,7 +22,18 @@ if (isset($_GET['add_node'])) {
     echo json_encode(["status" => "success"]);
     exit();
 }
+// ... ต่อจากบรรทัดที่ 22 (exit();) ...
 
+// 2. ส่วนของการดึงข้อมูลทั้งหมดมาวาดต้นไม้
+$result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
+$nodes = [];
+
+while($row = $result->fetch_assoc()) {
+    $nodes[] = (int)$row['value'];
+}
+
+echo json_encode($nodes); // ส่งรายการตัวเลขกลับไปให้ index.html วาดรูป
+$conn->close();
 // ดึงข้อมูลทั้งหมดส่งกลับไปวาดต้นไม้
 $result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
 $nodes = [];
