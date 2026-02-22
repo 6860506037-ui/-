@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>BST Explorer (MariaDB)</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f4f7f6; padding: 20px; }
+        canvas { background: white; border: 1px solid #ccc; border-radius: 10px; display: block; margin: 20px auto; }
+        .controls { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        button { padding: 10px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>BST Explorer (MariaDB Connected)</h1>
+    <div class="controls">
+        <input type="number" id="nodeValue" placeholder="ระบุตัวเลข">
+        <button onclick="sendToDB()">เพิ่ม Node</button>
+    </div>
+    <canvas id="treeCanvas" width="800" height="400"></canvas>
+
+    <script>
+        class Node { constructor(val) { this.val = val; this.left = null; this.right = null; } }
+        let root = null;
+
+        async function loadNodes() {
+            try {
+                const res = await fetch('/api/index.php'); // ดึงข้อมูลจากไฟล์ PHP ในโฟลเดอร์ api
+                const data = await res.json();
+                root = null;
+                data.forEach(val => { root = insert(root, val); });
+                draw();
+            } catch (e) { console.log("กำลังรอการเชื่อมต่อ..."); }
+        }
+
+        async function sendToDB() {
+            const val = document.getElementById('nodeValue').value;
+            if (!val) return;
+            await fetch(`/api/index.php?add_node=${val}`); // ส่งเลขไปให้ PHP บันทึก
+            document.getElementById('nodeValue').value = '';
+            loadNodes(); // อัปเดตต้นไม้ทันที
+        }
+
+        function insert(node, val) {
+            if (!node) return new Node(val);
+            if (val < node.val) node.left = insert(node.left, val);
+            else if (val > node.val) node.right = insert(node.right, val);
+            return node;
+        }
+
+        function draw() {
+            const canvas = document.getElementById('treeCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (root) drawNode(ctx, root, canvas.width / 2, 40, canvas.width / 4);
+        }
+
+        function drawNode(ctx, node, x, y, offset) {
+            if (node.left) {
+                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - offset, y + 60); ctx.stroke();
+                drawNode(ctx, node.left, x - offset, y + 60, offset / 1.8);
+            }
+            if (node.right) {
+                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + offset, y + 60); ctx.stroke();
+                drawNode(ctx, node.right, x + offset, y + 60, offset / 1.8);
+            }
+            ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fillStyle = "#007bff"; ctx.fill();
+            ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.fillText(node.val, x, y + 5);
+        }
+        window.onload = loadNodes;
+    </script>
+</body>
+</html>
