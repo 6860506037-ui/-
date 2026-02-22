@@ -18,10 +18,21 @@ if (isset($_GET['add_node'])) {
     $val = intval($_GET['add_node']);
     $stmt = $conn->prepare("INSERT INTO bst_nodes (value) VALUES (?)");
     $stmt->bind_param("i", $val);
-    $stmt->execute();
-    echo json_encode(["status" => "success"]);
-    exit();
+        // ลบส่วน header และ exit ของเก่าออก แล้วใส่ส่วนนี้แทนครับ
+    $stmt->close();
 }
+
+// 2. ดึงข้อมูลทั้งหมดมาส่งให้หน้าเว็บวาดต้นไม้ (ห้ามมี exit ขวางข้างบน)
+$result = $conn->query("SELECT value FROM bst_nodes ORDER BY id ASC");
+$nodes = [];
+
+while($row = $result->fetch_assoc()) {
+    $nodes[] = (int)$row['value'];
+}
+
+echo json_encode($nodes); 
+$conn->close();
+?>
 // ... ต่อจากบรรทัดที่ 22 (exit();) ...
 
 // 2. ส่วนของการดึงข้อมูลทั้งหมดมาวาดต้นไม้
