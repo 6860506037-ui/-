@@ -5,7 +5,7 @@ $host = '202.29.70.18';
 $user = 'trees_db';        
 $db   = 'trees_db';        
 $port = '3306';            
-$pass = 'รหัสผ่านจริงของคุณ'; // อย่าลืมใส่รหัสผ่านจริงจากหน้า Dokploy
+$pass = '1111'; // อย่าลืมใส่รหัสผ่านจริงจากหน้า Dokploy
 
 $conn = new mysqli($host, $user, $pass, $db, $port);
 
